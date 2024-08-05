@@ -29,6 +29,15 @@ class Kexim
         //    
     }
 
+    /**
+     * 현재환율 API
+     * 
+     * @link   https://www.koreaexim.go.kr/ir/HPHKIR020M01?apino=2&viewtype=C
+     * 
+     * @param  string|null  $searchDate
+     * @return array
+     * @throws \InvalidArgumentException|\Minhyung\Kexim\ApiException
+     */
     public function currency($searchDate = null)
     {
         $data = $this->send(self::ENDPOINT_CURRENCY, 'AP01', $searchDate);
@@ -46,6 +55,15 @@ class Kexim
         return $data;
     }
 
+    /**
+     * 대출금리 API
+     * 
+     * @link   https://www.koreaexim.go.kr/ir/HPHKIR020M01?apino=3&viewtype=C
+     * 
+     * @param  string|null  $searchDate
+     * @return array
+     * @throws \Minhyung\Kexim\ApiException
+     */
     public function interest($searchDate = null)
     {
         $data = $this->send(self::ENDPOINT_INTEREST, 'AP02', $searchDate);
@@ -59,6 +77,15 @@ class Kexim
         return $data;
     }
 
+    /**
+     * 국제금리 API
+     * 
+     * @link   https://www.koreaexim.go.kr/ir/HPHKIR020M01?apino=4&viewtype=C
+     * 
+     * @param  string|null  $searchDate
+     * @return array
+     * @throws \Minhyung\Kexim\ApiException
+     */
     public function international($searchDate = null)
     {
         $data = $this->send(self::ENDPOINT_INTERNATIONAL, 'AP03', $searchDate);
