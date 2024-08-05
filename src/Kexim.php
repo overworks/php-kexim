@@ -7,20 +7,14 @@ namespace Minhyung\Kexim;
 use DateTimeImmutable;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
-use InvalidArgumentException;
+use Minhyung\Kexim\Exceptions\ApiException;
+use Minhyung\Kexim\Exceptions\InvalidDateException;
 
 class Kexim
 {
     const ENDPOINT_CURRENCY = 'https://www.koreaexim.go.kr/site/program/financial/exchangeJSON';
     const ENDPOINT_INTEREST = 'https://www.koreaexim.go.kr/site/program/financial/interestJSON';
     const ENDPOINT_INTERNATIONAL = 'https://www.koreaexim.go.kr/site/program/financial/internationalJSON';
-
-    const RESULT_CODES = [
-        1 => '성공',
-        2 => 'DATA 코드 오류',
-        3 => '인증코드 오류',
-        4 => '일일제한횟수 마감',
-    ];
 
     protected ?Client $client = null;
 
@@ -36,19 +30,19 @@ class Kexim
      * 
      * @param  string|null  $searchDate
      * @return array
-     * @throws \InvalidArgumentException|\Minhyung\Kexim\ApiException
+     * @throws \Minhyung\Kexim\Exceptions\InvalidArgumentException|\Minhyung\Kexim\ApiException
      */
     public function currency($searchDate = null)
     {
         $data = $this->send(self::ENDPOINT_CURRENCY, 'AP01', $searchDate);
         if (! $data) {
-            throw new InvalidArgumentException('비영입일 혹은 영업일 11시 이전입니다.');
+            throw new InvalidDateException('비영입일 혹은 영업일 11시 이전입니다.');
         }
 
         // TODO
         foreach ($data as $item) {
             if ($item['result'] !== 1) {
-                throw new ApiException(self::RESULT_CODES[$item['result']]);
+                throw ApiException::fromResultCode($item['result']);
             }
         }
 
@@ -71,7 +65,7 @@ class Kexim
         // TODO
         foreach ($data as $item) {
             if ($item['result'] !== 1) {
-                throw new ApiException(self::RESULT_CODES[$item['result']]);
+                throw ApiException::fromResultCode($item['result']);
             }
         }
         return $data;
