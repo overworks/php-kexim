@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Minhyung\Kexim\Tests;
 
-use InvalidArgumentException;
+use Minhyung\Kexim\Exceptions\InvalidDateException;
 use Minhyung\Kexim\Kexim;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -35,8 +35,8 @@ final class KeximTest extends TestCase
         $result = $this->kexim->currency('2024-08-05');
         $this->assertIsArray($result);
 
-        $this->expectException(InvalidArgumentException::class);
-        $result = $this->kexim->currency('2024-08-06');
+        $this->expectException(InvalidDateException::class);
+        $result = $this->kexim->currency('2024-08-04');
     }
 
     #[Test]
