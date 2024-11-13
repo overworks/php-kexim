@@ -16,11 +16,21 @@ class Kexim
     const ENDPOINT_INTEREST = 'https://www.koreaexim.go.kr/site/program/financial/interestJSON';
     const ENDPOINT_INTERNATIONAL = 'https://www.koreaexim.go.kr/site/program/financial/internationalJSON';
 
-    protected ?Client $client = null;
+    private string $authKey;
+    private array $config;
+    private ?Client $client = null;
 
-    public function __construct(private string $authKey)
+    /**
+     * Create a new Kexim instance.
+     * 
+     * @param  string  $authKey
+     * @param  array   $config   Guzzle default options
+     * @return void
+     */
+    public function __construct(string $authKey, array $config = [])
     {
-        //    
+        $this->authKey = $authKey;
+        $this->config = $config;
     }
 
     /**
@@ -101,19 +111,11 @@ class Kexim
         }
 
         $response = $this->client()->get($endpoint, [RequestOptions::QUERY => $params]);
-        $body = (string) $response->getBody();
-        return json_decode($body, true);
+        return json_decode((string) $response->getBody(), true);
     }
 
     protected function client(): Client
     {
-        if (! $this->client) {
-            $this->client = new Client([
-                'http_errors' => true,
-                'cookies' => false,
-                'headers' => ['Accept' => 'application/json'],
-            ]);
-        }
-        return $this->client;
+        return $this->client ??= new Client($this->config);
     }
 }
