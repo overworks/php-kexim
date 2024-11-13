@@ -40,9 +40,10 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "extra": {
-        "branch-alias": {
-            "dev-main": "0.x-dev"
-        }
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
     }
 }
