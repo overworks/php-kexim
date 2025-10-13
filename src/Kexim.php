@@ -12,9 +12,14 @@ use Minhyung\Kexim\Exceptions\InvalidDateException;
 
 class Kexim
 {
-    const ENDPOINT_CURRENCY = 'https://www.koreaexim.go.kr/site/program/financial/exchangeJSON';
-    const ENDPOINT_INTEREST = 'https://www.koreaexim.go.kr/site/program/financial/interestJSON';
-    const ENDPOINT_INTERNATIONAL = 'https://www.koreaexim.go.kr/site/program/financial/internationalJSON';
+    const DOMAIN = 'oapi.koreaexim.go.kr';
+
+    /** @deprecated Use ENDPOINT_EXCHANGE instead */
+    const ENDPOINT_CURRENCY = 'https://'.self::DOMAIN.'/site/program/financial/exchangeJSON';
+
+    const ENDPOINT_EXCHANGE = 'https://'.self::DOMAIN.'/site/program/financial/exchangeJSON';
+    const ENDPOINT_INTEREST = 'https://'.self::DOMAIN.'/site/program/financial/interestJSON';
+    const ENDPOINT_INTERNATIONAL = 'https://'.self::DOMAIN.'/site/program/financial/internationalJSON';
 
     private string $authKey;
     private array $config;
@@ -38,15 +43,30 @@ class Kexim
      * 
      * @link   https://www.koreaexim.go.kr/ir/HPHKIR020M01?apino=2&viewtype=C
      * 
+     * @deprecated Use exchange() instead
      * @param  string|null  $searchDate
      * @return array
      * @throws \Minhyung\Kexim\Exceptions\InvalidArgumentException|\Minhyung\Kexim\ApiException
      */
     public function currency($searchDate = null)
     {
-        $data = $this->send(self::ENDPOINT_CURRENCY, 'AP01', $searchDate);
+        return $this->exchange($searchDate);
+    }
+
+    /**
+     * 현재환율 API
+     * 
+     * @link   https://www.koreaexim.go.kr/ir/HPHKIR020M01?apino=2&viewtype=C
+     * 
+     * @param  string|null  $searchDate
+     * @return array
+     * @throws \Minhyung\Kexim\Exceptions\InvalidArgumentException|\Minhyung\Kexim\ApiException
+     */
+    public function exchange($searchDate = null)
+    {
+        $data = $this->send(self::ENDPOINT_EXCHANGE, 'AP01', $searchDate);
         if (! $data) {
-            throw new InvalidDateException('비영입일 혹은 영업일 11시 이전입니다.');
+            throw new InvalidDateException('비영업일 혹은 영업일 11시 이전입니다.');
         }
 
         // TODO
