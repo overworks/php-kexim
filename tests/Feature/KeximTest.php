@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Minhyung\Kexim\Tests;
 
+use LogicException;
 use Minhyung\Kexim\Exceptions\InvalidDateException;
 use Minhyung\Kexim\Kexim;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -30,13 +31,13 @@ final class KeximTest extends TestCase
     }
 
     #[Test]
-    public function testCurrency()
+    public function testExchange()
     {
-        $result = $this->kexim->currency('2024-08-05');
+        $result = $this->kexim->exchange('2024-08-05');
         $this->assertIsArray($result);
 
         $this->expectException(InvalidDateException::class);
-        $result = $this->kexim->currency('2024-08-04');
+        $result = $this->kexim->exchange('2024-08-04');
     }
 
     #[Test]
@@ -49,7 +50,7 @@ final class KeximTest extends TestCase
     #[Test]
     public function testInternational()
     {
+        $this->expectException(LogicException::class);
         $result = $this->kexim->international('2024-08-05');
-        $this->assertIsArray($result);
     }
 }

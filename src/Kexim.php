@@ -7,6 +7,7 @@ namespace Minhyung\Kexim;
 use DateTimeImmutable;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
+use LogicException;
 use Minhyung\Kexim\Exceptions\ApiException;
 use Minhyung\Kexim\Exceptions\InvalidDateException;
 
@@ -69,14 +70,15 @@ class Kexim
             throw new InvalidDateException('비영업일 혹은 영업일 11시 이전입니다.');
         }
 
-        // TODO
+        $result = [];
         foreach ($data as $item) {
             if ($item['result'] !== 1) {
                 throw ApiException::fromResultCode($item['result']);
             }
+            $result[] = new Exchange($item);
         }
 
-        return $data;
+        return $result;
     }
 
     /**
@@ -92,13 +94,14 @@ class Kexim
     {
         $data = $this->send(self::ENDPOINT_INTEREST, 'AP02', $searchDate);
 
-        // TODO
+        $result = [];
         foreach ($data as $item) {
             if ($item['result'] !== 1) {
                 throw ApiException::fromResultCode($item['result']);
             }
+            $result[] = new Interest($item);
         }
-        return $data;
+        return $result;
     }
 
     /**
@@ -112,10 +115,10 @@ class Kexim
      */
     public function international($searchDate = null)
     {
+        throw new LogicException("Not implemented yet");
+
         $data = $this->send(self::ENDPOINT_INTERNATIONAL, 'AP03', $searchDate);
 
-        // TODO
-        
         return $data;
     }
 
