@@ -8,7 +8,6 @@ use DateTimeImmutable;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use LogicException;
-use Minhyung\Kexim\Exceptions\ApiException;
 use Minhyung\Kexim\Exceptions\InvalidDateException;
 
 class Kexim
@@ -47,7 +46,7 @@ class Kexim
      * @deprecated Use exchange() instead
      * @param  string|null  $searchDate
      * @return array
-     * @throws \Minhyung\Kexim\Exceptions\InvalidArgumentException|\Minhyung\Kexim\ApiException
+     * @throws \Minhyung\Kexim\Exceptions\InvalidDateException|\Minhyung\Kexim\Exceptions\ApiException
      */
     public function currency($searchDate = null)
     {
@@ -60,23 +59,15 @@ class Kexim
      * @link   https://www.koreaexim.go.kr/ir/HPHKIR020M01?apino=2&viewtype=C
      * 
      * @param  string|null  $searchDate
-     * @return array
-     * @throws \Minhyung\Kexim\Exceptions\InvalidArgumentException|\Minhyung\Kexim\ApiException
+     * @return \Minhyung\Kexim\Exchange
+     * @throws \Minhyung\Kexim\Exceptions\InvalidDateException
+     * @throws \Minhyung\Kexim\Exceptions\ApiException
      */
     public function exchange($searchDate = null)
     {
-        $data = $this->send(self::ENDPOINT_EXCHANGE, 'AP01', $searchDate);
-        if (! $data) {
-            throw new InvalidDateException('비영업일 혹은 영업일 11시 이전입니다.');
-        }
+        $response = $this->send(self::ENDPOINT_EXCHANGE, 'AP01', $searchDate);
 
-        $result = [];
-        foreach ($data as $item) {
-            if ($item['result'] !== 1) {
-                throw ApiException::fromResultCode($item['result']);
-            }
-            $result[] = new Exchange($item);
-        }
+        $result = new Exchange($response);
 
         return $result;
     }
@@ -87,20 +78,16 @@ class Kexim
      * @link   https://www.koreaexim.go.kr/ir/HPHKIR020M01?apino=3&viewtype=C
      * 
      * @param  string|null  $searchDate
-     * @return array
-     * @throws \Minhyung\Kexim\ApiException
+     * @return \Minhyung\Kexim\Interest
+     * @throws \Minhyung\Kexim\Exceptions\InvalidDateException
+     * @throws \Minhyung\Kexim\Exceptions\ApiException
      */
     public function interest($searchDate = null)
     {
-        $data = $this->send(self::ENDPOINT_INTEREST, 'AP02', $searchDate);
+        $response = $this->send(self::ENDPOINT_INTEREST, 'AP02', $searchDate);
 
-        $result = [];
-        foreach ($data as $item) {
-            if ($item['result'] !== 1) {
-                throw ApiException::fromResultCode($item['result']);
-            }
-            $result[] = new Interest($item);
-        }
+        $result = new Interest($response);
+
         return $result;
     }
 
@@ -110,16 +97,16 @@ class Kexim
      * @link   https://www.koreaexim.go.kr/ir/HPHKIR020M01?apino=4&viewtype=C
      * 
      * @param  string|null  $searchDate
-     * @return array
-     * @throws \Minhyung\Kexim\ApiException
+     * @return \Minhyung\Kexim\International
+     * @throws \LogicException
+     * @throws \Minhyung\Kexim\Exceptions\InvalidDateException
+     * @throws \Minhyung\Kexim\Exceptions\ApiException
      */
     public function international($searchDate = null)
     {
-        throw new LogicException("Not implemented yet");
-
         $data = $this->send(self::ENDPOINT_INTERNATIONAL, 'AP03', $searchDate);
 
-        return $data;
+        return new International($data);
     }
 
     protected function send(string $endpoint, string $data, $searchDate = null)
@@ -134,7 +121,12 @@ class Kexim
         }
 
         $response = $this->client()->get($endpoint, [RequestOptions::QUERY => $params]);
-        return json_decode((string) $response->getBody(), true);
+        $responseBody = $response->getBody()->getContents();
+        if (! $responseBody) {
+            throw new InvalidDateException('Invalid date: '.$searchDate);
+        }
+        
+        return json_decode($responseBody, true);
     }
 
     protected function client(): Client

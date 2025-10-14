@@ -4,19 +4,36 @@ declare(strict_types=1);
 
 namespace Minhyung\Kexim;
 
-class Interest
-{
-    /** 조회 결과 */
-    public readonly ResponseResult $result;
-    /** 대출기간 */
-    public readonly string $sfln_intrc_nm;
-    /** 고정기준금리(%) */
-    public readonly float $int_r;
+use ArrayAccess;
+use LogicException;
 
-    public function __construct(array $result)
+class Interest implements ArrayAccess
+{
+    /** @var InterestItem[] */
+    public readonly array $items;
+
+    public function __construct(array $data)
     {
-        $this->result = ResponseResult::from($result['result']);
-        $this->sfln_intrc_nm = $result['sfln_intrc_nm'];
-        $this->int_r = floatval($result['int_r']);
+        $this->items = array_map(fn ($item) => new InterestItem($item), $data);
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return isset($this->items[$offset]);
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+        return $this->offsetExists($offset) ? $this->items[$offset] : null;
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        throw new LogicException('Cannot modify readonly object');
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        throw new LogicException('Cannot modify readonly object');
     }
 }

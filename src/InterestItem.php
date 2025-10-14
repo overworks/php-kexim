@@ -8,9 +8,14 @@ use ArrayAccess;
 use LogicException;
 use Minhyung\Kexim\Exceptions\ApiException;
 
-class International implements ArrayAccess
+class InterestItem implements ArrayAccess
 {
+    /** 조회 결과 */
     public readonly int $result;
+    /** 대출기간 */
+    public readonly string $sfln_intrc_nm;
+    /** 고정기준금리(%) */
+    public readonly float $int_r;
 
     public function __construct(array $data)
     {
@@ -19,8 +24,8 @@ class International implements ArrayAccess
         }
 
         $this->result = $data['result'];
-
-        throw new LogicException("Not implemented yet");
+        $this->sfln_intrc_nm = $data['sfln_intrc_nm'];
+        $this->int_r = floatval($data['int_r']);
     }
 
     public function offsetExists(mixed $offset): bool

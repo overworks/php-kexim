@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace Minhyung\Kexim\Tests;
 
 use LogicException;
-use Minhyung\Kexim\Exceptions\InvalidDateException;
+use Minhyung\Kexim\Exchange;
+use Minhyung\Kexim\Interest;
 use Minhyung\Kexim\Kexim;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
@@ -34,17 +35,18 @@ final class KeximTest extends TestCase
     public function testExchange()
     {
         $result = $this->kexim->exchange('2024-08-05');
-        $this->assertIsArray($result);
+        $this->assertInstanceOf(Exchange::class, $result);
 
-        $this->expectException(InvalidDateException::class);
         $result = $this->kexim->exchange('2024-08-04');
+        $this->assertInstanceOf(Exchange::class, $result);
+        $this->assertEmpty($result->items);
     }
 
     #[Test]
     public function testInterest()
     {
         $result = $this->kexim->interest('2024-08-05');
-        $this->assertIsArray($result);
+        $this->assertInstanceOf(Interest::class, $result);
     }
 
     #[Test]
