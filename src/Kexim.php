@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace Minhyung\Kexim;
 
 use DateTimeImmutable;
-use GuzzleHttp\Client;
-use GuzzleHttp\RequestOptions;
+use Http\Discovery\Psr18Client;
 use LogicException;
 use Minhyung\Kexim\Exceptions\InvalidDateException;
 
@@ -22,20 +21,16 @@ class Kexim
     const ENDPOINT_INTERNATIONAL = 'https://'.self::DOMAIN.'/site/program/financial/internationalJSON';
 
     private string $authKey;
-    private array $config;
-    private ?Client $client = null;
 
     /**
      * Create a new Kexim instance.
      * 
      * @param  string  $authKey
-     * @param  array   $config   Guzzle default options
      * @return void
      */
-    public function __construct(string $authKey, array $config = [])
+    public function __construct(string $authKey)
     {
         $this->authKey = $authKey;
-        $this->config = $config;
     }
 
     /**
@@ -115,22 +110,21 @@ class Kexim
             'authkey' => $this->authKey,
             'data' => $data,
         ];
+
         if ($searchDate) {
             $date = new DateTimeImmutable($searchDate);
             $params['searchdate'] = $date->format('Y-m-d');
         }
 
-        $response = $this->client()->get($endpoint, [RequestOptions::QUERY => $params]);
+        $client = new Psr18Client();
+        $request = $client->createRequest('GET', $endpoint.'?'.http_build_query($params));
+        $response = $client->sendRequest($request);
+
         $responseBody = $response->getBody()->getContents();
         if (! $responseBody) {
             throw new InvalidDateException('Invalid date: '.$searchDate);
         }
         
         return json_decode($responseBody, true);
-    }
-
-    protected function client(): Client
-    {
-        return $this->client ??= new Client($this->config);
     }
 }

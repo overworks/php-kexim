@@ -23,9 +23,12 @@
     "require": {
         "php": ">=8.1",
         "ext-json": "*",
-        "guzzlehttp/guzzle": "^7.0"
+        "php-http/discovery": "^1.20",
+        "psr/http-client-implementation": "*",
+        "psr/http-factory-implementation": "*"
     },
     "require-dev": {
+        "guzzlehttp/guzzle": "^7.10",
         "phpunit/phpunit": "^10.0|^11.0"
     },
     "autoload": {
@@ -41,7 +44,10 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "php-http/discovery": false
+        }
     },
     "scripts": {
         "test": "vendor/bin/phpunit"
